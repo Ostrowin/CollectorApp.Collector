@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CollectoraApp.test/CollectoraApp.test.csproj" Id="ec2c799c-c645-4766-a7be-552458837b46" />
+  <Project Path="CollectorApp/CollectorApp.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
