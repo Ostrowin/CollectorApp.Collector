@@ -67,40 +67,50 @@ public class DictionaryService : IDictionaryService
     private async Task<bool> TryLoadFromApiAsync()
     {
 #if DEBUG
-        // MOCK – usuń gdy endpointy API będą gotowe
-        await Task.Delay(1500); // symulacja opóźnienia sieciowego
+        await Task.Delay(1500);
 
         _warehouses =
         [
             new Warehouse(1, "MAG-01", "Magazyn Główny", "Magazyn centralny"),
-        new Warehouse(2, "MAG-02", "Magazyn Zewnętrzny", "Magazyn przy bramie"),
-        new Warehouse(3, "MAG-03", "Magazyn Zwrotów", "Zwroty i reklamacje"),
-    ];
+            new Warehouse(2, "MAG-02", "Magazyn Zewnętrzny", "Magazyn przy bramie"),
+            new Warehouse(3, "MAG-03", "Magazyn Zwrotów", "Zwroty i reklamacje"),
+        ];
 
         _warehouseCategories =
         [
             new WarehouseCategory(1, "KAT-01", "Elektronika", 1),
-        new WarehouseCategory(2, "KAT-02", "AGD", 1),
-        new WarehouseCategory(3, "KAT-03", "Spożywcze", 2),
-        new WarehouseCategory(4, "KAT-04", "Zwroty klientów", 3),
-    ];
+            new WarehouseCategory(2, "KAT-02", "AGD", 1),
+            new WarehouseCategory(3, "KAT-03", "Spożywcze", 2),
+            new WarehouseCategory(4, "KAT-04", "Zwroty klientów", 3),
+        ];
 
         _contractors =
         [
             new Contractor(1, "KON-01", "ABC Sp. z o.o.", "1234567890", "ul. Przykładowa 1, Warszawa"),
-        new Contractor(2, "KON-02", "XYZ S.A.", "0987654321", "ul. Testowa 2, Kraków"),
-        new Contractor(3, "KON-03", "Jan Kowalski", "1122334455", "ul. Fikcyjna 3, Gdańsk"),
-    ];
+            new Contractor(2, "KON-02", "XYZ S.A.", "0987654321", "ul. Testowa 2, Kraków"),
+            new Contractor(3, "KON-03", "Jan Kowalski", "1122334455", "ul. Fikcyjna 3, Gdańsk"),
+        ];
 
         await SaveToCacheAsync();
         return true;
 #else
     try
     {
-        // prawdziwe API – docelowy kod
         var warehouses = await _httpClient
             .GetFromJsonAsync<List<Warehouse>>("/api/Warehouses");
-        // ...
+        var warehouseCategories = await _httpClient
+            .GetFromJsonAsync<List<WarehouseCategory>>("/api/WarehouseCategories");
+        var contractors = await _httpClient
+            .GetFromJsonAsync<List<Contractor>>("/api/Contractors");
+
+        if (warehouses is null || warehouseCategories is null || contractors is null)
+            return false;
+
+        _warehouses = warehouses;
+        _warehouseCategories = warehouseCategories;
+        _contractors = contractors;
+
+        await SaveToCacheAsync();
         return true;
     }
     catch (Exception ex)

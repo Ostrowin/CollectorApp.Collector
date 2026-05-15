@@ -34,6 +34,13 @@ public partial class LoginViewModel : BaseViewModel
     public bool IsPasswordValid => Password.Length >= 3;
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
+    public bool IsDebugMode =>
+#if DEBUG
+    true;
+#else
+    false;
+#endif
+
     public LoginViewModel(IAuthService authService, INavigationService navigationService)
     {
         Title = "Logowanie";
@@ -79,5 +86,11 @@ public partial class LoginViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task SkipLoginAsync()
+    {
+        await _navigationService.GoToAsync("//menu");
     }
 }
