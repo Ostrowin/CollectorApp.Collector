@@ -12,19 +12,25 @@ public partial class LoginViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-    [NotifyPropertyChangedFor(nameof(IsEmailValid))]
-    private string _email = "admin@admin";
+    [NotifyPropertyChangedFor(nameof(IsNameValid))]
+    private string _name = "";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
+    [NotifyPropertyChangedFor(nameof(IsSurnameValid))]
+    private string _surname = "";
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
     [NotifyPropertyChangedFor(nameof(IsPasswordValid))]
-    private string _password = "Admin1!";
+    private string _password = "";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
     private string _errorMessage = string.Empty;
 
-    public bool IsEmailValid => Email.Contains('@');
+    public bool IsNameValid => Name.Length >= 2;
+    public bool IsSurnameValid => Surname.Length >= 2;
     public bool IsPasswordValid => Password.Length >= 3;
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
@@ -35,9 +41,10 @@ public partial class LoginViewModel : BaseViewModel
         _navigationService = navigationService;
     }
 
-    private bool CanLogin() => 
-        IsEmailValid && 
-        IsPasswordValid && 
+    private bool CanLogin() =>
+        IsNameValid &&
+        IsSurnameValid &&
+        IsPasswordValid &&
         !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanLogin))]
@@ -47,11 +54,11 @@ public partial class LoginViewModel : BaseViewModel
         ErrorMessage = string.Empty;
 
         //!!
-        await _navigationService.GoToAsync("//menu");
+        //await _navigationService.GoToAsync("//menu");
 
         try
         {
-            var user = await _authService.LoginAsync(Email, Password);
+            var user = await _authService.LoginAsync(Name, Surname, Password);
             if (user is null)
             {
                 ErrorMessage = "Nieprawidłowa nazwa użytkownika lub hasło.";
