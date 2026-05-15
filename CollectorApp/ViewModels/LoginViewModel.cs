@@ -47,7 +47,7 @@ public partial class LoginViewModel : BaseViewModel
         ErrorMessage = string.Empty;
 
         //!!
-        await _navigationService.GoToAsync("//scanner");
+        await _navigationService.GoToAsync("//menu");
 
         try
         {
@@ -57,7 +57,7 @@ public partial class LoginViewModel : BaseViewModel
                 ErrorMessage = "Nieprawidłowa nazwa użytkownika lub hasło.";
                 return;
             }
-            await _navigationService.GoToAsync("//scanner");
+            await _navigationService.GoToAsync("//menu");
         }
         catch (Exception ex)
         {

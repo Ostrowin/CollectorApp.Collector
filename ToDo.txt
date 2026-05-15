@@ -1,0 +1,256 @@
+================================================================
+  COLLECTORAPP – PLAN DZIAŁANIA / TODO
+  Aplikacja magazynowa (kolektor danych → proxy API → Subiekt)
+  Ostatnia aktualizacja: 2026-05-07
+================================================================
+
+LEGENDA:
+  [x] – zrobione
+  [ ] – do zrobienia
+  [~] – w trakcie / częściowo
+
+================================================================
+  ETAP 1 – ŚRODOWISKO I PROJEKT
+================================================================
+
+  [x] Instalacja MAUI workload
+  [x] Przygotowanie fizycznego urządzenia Android (debugowanie USB)
+  [x] Utworzenie projektu (CollectorApp, .NET 10)
+  [x] Omówienie struktury projektu
+  [x] Utworzenie folderów (Models, ViewModels, Views, Services, Helpers)
+  [x] Pierwsze uruchomienie na telefonie
+
+================================================================
+  ETAP 2 – ARCHITEKTURA: MVVM + DI
+================================================================
+
+  [x] Instalacja CommunityToolkit.Mvvm
+  [x] BaseViewModel
+  [x] BasePage
+  [x] AppShell – wyczyszczony i skonfigurowany
+  [x] MauiProgram.cs – DI skonfigurowane
+  [x] App.xaml.cs – Shell przez DI
+  [x] Naprawienie konfliktu nazwy projektu (Collector → CollectorApp)
+  [x] Ustawienie RootNamespace w .csproj
+
+================================================================
+  ETAP 3 – NAWIGACJA
+================================================================
+
+  [x] Shell Navigation – routes
+  [x] LoginPage – szkielet
+  [x] LoginViewModel – szkielet
+  [x] ServiceLocator
+  [x] AppShell – route "login"
+
+================================================================
+  ETAP 4 – WIDOK LOGIN
+================================================================
+
+  [x] Model User (record)
+  [x] IAuthService + AuthService (prawdziwe API)
+  [x] LoginViewModel – pełna logika
+      [x] Walidacja email i hasła
+      [x] CanLogin / CanExecute
+      [x] IsBusy / spinner
+      [x] ErrorMessage
+      [x] try/catch/finally
+  [x] LoginPage.xaml – pełny UI
+  [x] Testy manualne widoku login
+
+================================================================
+  ETAP 5 – WIDOK SCANNER
+================================================================
+
+  [x] Instalacja ZXing.Net.MAUI.Controls (v0.7.4)
+  [x] Uprawnienia kamery w AndroidManifest.xml
+  [x] Model ScanResult (record)
+  [x] ScannerViewModel
+  [x] INavigationService + NavigationService
+  [x] ScannerPage.xaml + code-behind
+  [x] Obsługa formatów 1D i 2D (BarcodeReaderOptions)
+  [x] Rejestracja w DI i AppShell
+
+================================================================
+  ETAP 6 – WIDOK SCAN RESULT
+================================================================
+
+  [x] ScanResultViewModel z QueryProperty
+  [x] ScanResultPage.xaml – pełny UI
+  [x] CopyToClipboardCommand
+  [x] Rejestracja w DI i AppShell
+
+================================================================
+  ETAP 7 – POŁĄCZENIE Z API
+================================================================
+
+  [x] Modele API (LoginRequest, LoginResponse, BarcodeRequest, BarcodeResponse)
+  [x] IApiService + ApiService
+  [x] Zaktualizowany AuthService
+  [x] HttpClient z SocketsHttpHandler
+  [x] Naprawienie circular dependency
+  [x] Zapis barcode do API po skanie
+
+================================================================
+  NASTĘPNY KROK – SŁOWNIKI (DICTIONARIES)
+================================================================
+
+  MODELE
+  [ ] Models/Dictionaries/Warehouse.cs
+        Id, Code, Name, Description
+  [ ] Models/Dictionaries/WarehouseCategory.cs
+        Id, Code, Name, WarehouseId
+  [ ] Models/Dictionaries/Contractor.cs
+        Id, Code, Name, NIP, Address
+
+  LOKALNY CACHE
+  [ ] Helpers/LocalStorageHelper.cs
+        Zapis/odczyt JSON do/z AppDataDirectory
+        Metody: SaveAsync<T>, LoadAsync<T>, Exists
+  [ ] Strategia cache:
+        - Pobierz z API przy starcie aplikacji
+        - Jeśli API niedostępne → załaduj z lokalnego pliku
+        - Jeśli brak lokalnego pliku → błąd krytyczny
+
+  SERWIS
+  [ ] Services/Interfaces/IDictionaryService.cs
+        Task<List<Warehouse>> GetWarehousesAsync()
+        Task<List<WarehouseCategory>> GetWarehouseCategoriesAsync()
+        Task<List<Contractor>> GetContractorsAsync()
+        Task RefreshAllAsync()
+        bool IsLoaded { get; }
+  [ ] Services/Implementations/DictionaryService.cs
+        Pobieranie z API (GET /api/Warehouses itd.)
+        Fallback na lokalny cache
+        Zapis do cache po udanym pobraniu z API
+
+  API ENDPOINTY (do dodania w REST API)
+  [ ] GET /api/Warehouses
+  [ ] GET /api/WarehouseCategories
+  [ ] GET /api/Contractors
+
+  EKRAN ŁADOWANIA (STARTUP)
+  [ ] Views/SplashLoadingPage.xaml
+        Logo aplikacji
+        ActivityIndicator
+        Label z aktualnym statusem ("Pobieranie magazynów...")
+        Label błędu gdy coś pójdzie nie tak
+  [ ] ViewModels/SplashLoadingViewModel.cs
+        Wywołanie DictionaryService.RefreshAllAsync()
+        Obsługa błędów (API niedostępne → fallback na cache)
+        Nawigacja do LoginPage po załadowaniu
+  [ ] Rejestracja w DI i AppShell jako pierwsza strona startowa
+
+================================================================
+  ARCHITEKTURA MAGAZYNOWA – PLANOWANIE
+================================================================
+
+  TYPY KODÓW KRESKOWYCH (do obsługi)
+  [ ] Produkty jednostkowe (EAN-13, EAN-8, Code128)
+  [ ] Produkty zmienno-wagowe (specjalny format EAN-13 z wagą)
+  [ ] Kody zbiorcze (palety, kartony – np. EAN-14, SSCC)
+  [ ] Kody 2D (QR, DataMatrix – np. GS1-128)
+  [ ] Serwis rozpoznawania typu kodu po formacie i prefiksie
+        BarcodeInterpreterService – zwraca typ i sparsowane dane
+
+  WIDOKI DO STWORZENIA
+  [ ] Widok wyboru operacji magazynowej
+        Przyjęcie (PZ), Wydanie (WZ), MM, Inwentaryzacja (IN)
+  [ ] Widok sesji skanowania
+        Lista zeskanowanych pozycji
+        Możliwość korekty ilości przy każdej pozycji
+        Przycisk "dodaj kolejny skan"
+        Przycisk "przejdź do podsumowania"
+  [ ] Widok edycji pozycji po skanie
+        Edytowalne pola (numer zlecenia, ilość, cena, uwagi)
+        Wybór magazynu źródłowego / docelowego (z listy słownika)
+        Wybór kontrahenta (z listy słownika)
+        Checkboxy opcji (np. "generuj MM od razu")
+  [ ] Widok podsumowania dokumentu
+        Przegląd wszystkich pozycji przed wysłaniem
+        Edycja nagłówka dokumentu
+        Przycisk "wyślij do Subiekta"
+  [ ] Widok historii dokumentów
+        Lista wysłanych dokumentów
+        Status (wysłano, błąd, oczekuje)
+
+  TYPY DOKUMENTÓW (Subiekt)
+  [ ] PZ  – Przyjęcie Zewnętrzne
+  [ ] WZ  – Wydanie Zewnętrzne
+  [ ] MM  – Przesunięcie Międzymagazynowe
+  [ ] IN  – Inwentaryzacja
+  [ ] (inne – do ustalenia)
+
+  DOCELOWY FLOW APLIKACJI
+  [ ] Startup → Pobieranie słowników
+        ↓
+  [ ] Login
+        ↓
+  [ ] Wybór typu operacji
+        ↓
+  [ ] Sesja skanowania (wiele kodów)
+        ↓
+  [ ] Edycja pozycji / parametrów dokumentu
+        ↓
+  [ ] Podsumowanie
+        ↓
+  [ ] Wysłanie → proxy API → Subiekt
+
+  INTEGRACJA Z SUBIEKTEM (przez proxy API)
+  [ ] Ustalenie formatu danych wychodzących (z proxy API)
+  [ ] Model DocumentPayload (dane wysyłane do proxy)
+  [ ] IDocumentSubmitService + DocumentSubmitService
+  [ ] Obsługa błędów odpowiedzi z Subiekta
+  [ ] Kolejka offline (jeśli brak połączenia – wyślij później)
+
+================================================================
+  TESTY JEDNOSTKOWE
+================================================================
+
+  [~] Projekt CollectorApp.Tests (xUnit)
+  [~] CollectorApp.Core (osobna biblioteka)
+  [ ] Instalacja NSubstitute
+  [ ] LoginViewModelTests (7 testów)
+  [ ] ScannerViewModelTests
+  [ ] ScanResultViewModelTests
+  [ ] DictionaryServiceTests
+        [ ] Pobieranie z API gdy dostępne
+        [ ] Fallback na cache gdy API niedostępne
+        [ ] Błąd krytyczny gdy brak cache i API
+
+================================================================
+  DO ZROBIENIA – PRZYSZŁOŚĆ
+================================================================
+
+  BEZPIECZEŃSTWO
+  [ ] Przechowywanie tokenu JWT (SecureStorage)
+  [ ] Odświeżanie tokenu (refresh token)
+  [ ] Automatyczne wylogowanie po wygaśnięciu tokenu
+  [ ] Obsługa 401 Unauthorized globalnie w ApiService
+
+  UX / UI
+  [ ] Stylowanie globalne (Colors.xaml, Styles.xaml)
+  [ ] Ciemny / jasny motyw
+  [ ] Toast/Snackbar zamiast DisplayAlert
+  [ ] Ikona aplikacji
+  [ ] Obsługa dużych list (CollectionView z wirtualizacją)
+
+  KOD / ARCHITEKTURA
+  [ ] Dokończyć CollectorApp.Core
+  [ ] Error handling globalny
+  [ ] Usunięcie hardcodowanego IP (konfiguracja per środowisko)
+  [ ] Usunięcie hardcodowanych credentials (tylko DEBUG)
+  [ ] Serilog lub inny logger
+
+  ANDROID
+  [ ] Obsługa przycisku Back (Android back gesture)
+  [ ] Uprawnienia runtime
+  [ ] Docelowy adres API (produkcja)
+  [ ] Podpisanie APK (release build)
+  [ ] Obsługa skanera wbudowanego w kolektor (HID/intent)
+        Niektóre kolektory danych (Zebra, Honeywell) mają
+        dedykowany skaner – trzeba obsłużyć ich SDK lub intent
+
+================================================================
+
+

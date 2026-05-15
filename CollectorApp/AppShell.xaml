@@ -5,9 +5,18 @@
     xmlns:views="clr-namespace:CollectorApp.Views"
     Shell.FlyoutBehavior="Disabled">
 
+
+    <ShellContent
+        Route="SplashLoading"
+        ContentTemplate="{DataTemplate views:SplashLoadingPage}" />
+    
     <ShellContent
         Route="login"
         ContentTemplate="{DataTemplate views:LoginPage}" />
+    
+    <ShellContent Route="menu"
+        ContentTemplate="{DataTemplate views:MenuPage}" />
+
 
     <ShellContent
         Route="scanner"
