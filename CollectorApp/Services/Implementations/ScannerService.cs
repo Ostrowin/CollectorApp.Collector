@@ -42,20 +42,21 @@ public class ScannerService : IScannerService, IRecipient<BarcodeScannedMessage>
 
         try
         {
-            await _apiService.SaveBarcodeAsync(new BarcodeRequest(message.Value, message.Format));
+            _ = _apiService.SaveBarcodeAsync(new BarcodeRequest(message.Value, message.Format));
 
             var scanResult = new ScanResult(message.Value, message.Format, DateTime.Now);
 
             var navigationParams = new Dictionary<string, object>
-            {
-                { "ScanResult", scanResult }
-            };
+        {
+            { "ScanResult", scanResult }
+        };
 
             await _navigationService.GoToAsync("//result", navigationParams);
+            AppLogger.Info("ScannerService - navigation to result completed");
         }
         catch (Exception ex)
         {
-            AppLogger.Error("ScannerService - barcode save error", ex);
+            AppLogger.Error("ScannerService - navigation error", ex);
         }
         finally
         {

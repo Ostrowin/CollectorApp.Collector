@@ -53,12 +53,12 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!--  Kopiuj do schowka  -->
+                <!--
                 <Button
-                    Text="📋 Kopiuj do schowka"
+                    Text="Kopiuj do schowka"
                     Command="{Binding CopyToClipboardCommand}"
                     HorizontalOptions="Fill" />
-
+                -->
             </VerticalStackLayout>
         </ScrollView>
 
@@ -69,12 +69,12 @@
             Margin="0,24,0,0">
 
             <Button
-                Text="📄 Generuj dokument"
+                Text="Generuj dokument"
                 Command="{Binding GenerateDocumentCommand}"
                 HorizontalOptions="Fill" />
 
             <Button
-                Text="🔄 Skanuj ponownie"
+                Text="Skanuj ponownie"
                 Command="{Binding ScanAgainCommand}"
                 HorizontalOptions="Fill" />
 

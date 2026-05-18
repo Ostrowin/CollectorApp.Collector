@@ -32,7 +32,7 @@ public partial class ScanResultViewModel : BaseViewModel
     [RelayCommand]
     private async Task ScanAgainAsync()
     {
-        await _navigationService.GoToAsync("//scanner");
+        await _navigationService.GoToAsync("//menu");
     }
 
     [RelayCommand]
