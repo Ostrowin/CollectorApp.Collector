@@ -66,6 +66,7 @@ public class DictionaryService : IDictionaryService
 
     private async Task<bool> TryLoadFromApiAsync()
     {
+        AppLogger.Info("TryLoadFromApiAsync started");
 #if DEBUG
         await Task.Delay(1500);
 
@@ -115,14 +116,17 @@ public class DictionaryService : IDictionaryService
     }
     catch (Exception ex)
     {
+        AppLogger.Error("Dictionary API error", ex);
         System.Diagnostics.Debug.WriteLine($"Dictionary API error: {ex.Message}");
         return false;
     }
-#endif
+# endif
+        AppLogger.Info("Dictionaries loaded from API successfully");
     }
 
     public async Task LoadFromCacheAsync()
     {
+        AppLogger.Info("LoadFromCacheAsync started");
         var warehouses = await LocalStorageHelper.LoadAsync<List<Warehouse>>(WarehousesFile, _cacheDirectory);
         var warehouseCategories = await LocalStorageHelper.LoadAsync<List<WarehouseCategory>>(WarehousesCategoryFile, _cacheDirectory);
         var contractors = await LocalStorageHelper.LoadAsync<List<Contractor>>(ContractorsFile, _cacheDirectory);
@@ -133,6 +137,7 @@ public class DictionaryService : IDictionaryService
         _warehouses = warehouses;
         _warehouseCategories = warehouseCategories;
         _contractors = contractors;
+        AppLogger.Info("Dictionaries loaded from cache successfully");
     }
 
     public async Task SaveToCacheAsync() {

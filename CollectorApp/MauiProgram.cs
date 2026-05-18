@@ -4,7 +4,6 @@ using CollectorApp.ViewModels;
 using CollectorApp.Views;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.Logging;
-using ZXing.Net.Maui.Controls;
 
 namespace CollectorApp;
 
@@ -15,7 +14,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseBarcodeReader()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -73,6 +71,7 @@ public static class MauiProgram
 
         services.AddSingleton<IAuthService, AuthService>();
         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<IScannerService, ScannerService>();
     }
 
     private static void RegisterViewModels(IServiceCollection services)

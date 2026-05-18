@@ -5,20 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:CollectorApp.Views"
     xmlns:vm="clr-namespace:CollectorApp.ViewModels;assembly=CollectorApp"
-    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
     x:DataType="vm:ScannerViewModel">
 
     <Grid RowDefinitions="*,Auto">
 
-        <!--  Podgląd kamery + skaner  -->
-        <zxing:CameraBarcodeReaderView
-            x:Name="BarcodeReader"
-            Grid.Row="0"
-            IsTorchOn="{Binding HasTorch}"
-            IsDetecting="{Binding IsScannerEnabled}"
-            BarcodesDetected="BarcodeReader_BarcodesDetected"/>
-
-        <!--  Nakładka z celownikiem  -->
         <Border
             Grid.Row="0"
             Stroke="White"
@@ -29,8 +19,7 @@
             HorizontalOptions="Center"
             VerticalOptions="Center"
             StrokeShape="RoundRectangle 12" />
-
-        <!--  Przyciski dolne  -->
+        
         <HorizontalStackLayout
             Grid.Row="1"
             Spacing="16"
@@ -38,12 +27,12 @@
             HorizontalOptions="Center">
 
             <Button
-                Text="💡 Latarka"
+                Text="Latarka"
                 Command="{Binding ToggleTorchCommand}"
                 WidthRequest="140" />
 
             <Button
-                Text="🔄 Reset"
+                Text="Reset"
                 Command="{Binding ResetScannerCommand}"
                 WidthRequest="140" />
 

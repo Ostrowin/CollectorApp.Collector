@@ -1,4 +1,5 @@
-﻿using CollectorApp.Services.Implementations;
+﻿using CollectorApp.Helpers;
+using CollectorApp.Services.Implementations;
 using CollectorApp.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,14 +35,16 @@ public partial class SplashLoadingViewModel : BaseViewModel
 
         IsBusy = true;
         ErrorMessage = string.Empty;
-
+        AppLogger.Info("SplashLoading.InitializeAsync started");
         try
         {
             StatusMessage = "Ładowanie słowników...";
             await _dictionaryService.RefreshAllAsync();
+            AppLogger.Info("Dictionaries loaded successfully");
 
             StatusMessage = "Sprawdzanie sesji...";
             var sessionRestored = await _authService.TryRestoreSessionAsync();
+            AppLogger.Info($"Session restored: {sessionRestored}");
 
             StatusMessage = "Gotowe!";
             await Task.Delay(500); // ToDoFix: Remove after testing
@@ -53,6 +56,7 @@ public partial class SplashLoadingViewModel : BaseViewModel
         }
         catch (InvalidOperationException ex)
         {
+            AppLogger.Error("SplashLoading error", ex);
             ErrorMessage = $"Błąd podczas inicjalizacji: {ex.Message}";
         }
         catch (Exception ex)

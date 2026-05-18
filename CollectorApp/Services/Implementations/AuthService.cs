@@ -1,4 +1,5 @@
-﻿using CollectorApp.Models;
+﻿using CollectorApp.Helpers;
+using CollectorApp.Models;
 using CollectorApp.Models.Api;
 using CollectorApp.Services.Interfaces;
 
@@ -24,6 +25,7 @@ public class AuthService : IAuthService
 
     public async Task<User?> LoginAsync(string name, string surname, string password)
     {
+        AppLogger.Info($"LoginAsync started for: {name} {surname}");
         var response = await _apiService.LoginAsync(new LoginRequest(name, surname, password));
         
         var login = $"{name} {surname}";
@@ -32,32 +34,39 @@ public class AuthService : IAuthService
         _apiService.SetAuthToken(response.Token);
         
         await SaveToSecureStorageAsync(login, response.Token, response.Expiration);
+        AppLogger.Info("LoginAsync success");
 
         return _currentUser;
     }
 
     public async Task<bool> TryRestoreSessionAsync()
     {
+        AppLogger.Info("TryRestoreSessionAsync started");
         var login = await SecureStorage.Default.GetAsync(LoginKey);
         var token = await SecureStorage.Default.GetAsync(TokenKey);
         var expirationStr = await SecureStorage.Default.GetAsync(TokenExpirationKey);
         
         if (string.IsNullOrEmpty(login) || 
-            string.IsNullOrEmpty(token) || 
+            string.IsNullOrEmpty(token) ||
             string.IsNullOrEmpty(expirationStr))
+        {
+            AppLogger.Warning("TryRestoreSessionAsync - no token found");
             return false;
+        }
 
         if (!DateTime.TryParse(expirationStr, out var expiration))
             return false;
 
         if (expiration <= DateTime.Now)
         {
+            AppLogger.Warning("TryRestoreSessionAsync - token expired, clearing storage");
             await ClearSecureStorageAsync();
             return false;
         }
 
         _currentUser = new User(login, token, expiration);
         _apiService.SetAuthToken(token);
+        AppLogger.Info($"Session restored for: {login}");
 
         return true;
     }
@@ -67,6 +76,7 @@ public class AuthService : IAuthService
         _currentUser = null;
         _apiService.SetAuthToken(string.Empty);
         await ClearSecureStorageAsync();
+        AppLogger.Info("LogoutAsync completed");
     }
 
     private async Task SaveToSecureStorageAsync(string login, string token, DateTime expiration)
