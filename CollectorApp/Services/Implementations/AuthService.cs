@@ -93,4 +93,23 @@ public class AuthService : IAuthService
         SecureStorage.Default.Remove(TokenExpirationKey);
         return Task.CompletedTask;
     }
+
+    public Task<bool> ValidateSessionAsync()
+    {
+        if (_currentUser == null)
+        {
+            AppLogger.Warning("ValidateSessionAsync - no current user");
+            return Task.FromResult(false);
+        }
+
+        if (_currentUser.TokenExpiration <= DateTime.Now)
+        {
+            AppLogger.Warning("ValidateSessionAsync - token expired");
+            _ = LogoutAsync();
+            return Task.FromResult(false);
+        }
+
+        AppLogger.Info($"ValidateSession - ok, expires: {_currentUser.TokenExpiration:HH:mm:ss}");
+        return Task.FromResult(true);
+    }
 }

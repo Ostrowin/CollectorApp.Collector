@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using CollectorApp.Helpers;
-using CollectorApp.Services.Implementations;
 using CollectorApp.Services.Interfaces;
+using CollectorApp.Models;
+
 
 
 
@@ -26,6 +27,15 @@ public partial class App : Application
         _messenger = messenger;
         MainPage = appShell;
         scannerService.Initialize();
+
+        _messenger.Register<SessionExpiredMessage>(this, async (r, m) =>
+        {
+            AppLogger.Info("Session expired message received, navigating to login page");
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                await Shell.Current.GoToAsync("//LoginPage");
+            });
+        });
     }
 
     protected override void OnStart()
@@ -64,9 +74,8 @@ public partial class App : Application
 
         _receiver = new DataWedgeBroadcastReceiver(_messenger);
 
-        //var filter = new IntentFilter("com.companyname.collector.SCAN");
         var filter = new IntentFilter();
-        filter.AddAction("com.companyname.collector.SCAN");
+        filter.AddAction("com.insertsf.collector.SCAN");
         filter.AddAction("com.symbol.datawedge.api.RESULT_ACTION");
         filter.AddCategory(Intent.CategoryDefault);
 

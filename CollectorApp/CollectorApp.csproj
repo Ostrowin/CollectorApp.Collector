@@ -28,10 +28,10 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>Collector</ApplicationTitle>
+		<ApplicationTitle>InsERT Kolektor</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.collector</ApplicationId>
+		<ApplicationId>com.insertsf.collector</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

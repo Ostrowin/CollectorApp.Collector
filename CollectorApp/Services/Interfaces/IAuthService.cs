@@ -9,4 +9,5 @@ public interface IAuthService
     User? CurrentUser { get; }
     Task<bool> TryRestoreSessionAsync();
     Task LogoutAsync();
+    Task<bool> ValidateSessionAsync();
 }

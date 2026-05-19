@@ -10,17 +10,20 @@ public class ScannerService : IScannerService, IRecipient<BarcodeScannedMessage>
 {
     private readonly IMessenger _messenger;
     private readonly IApiService _apiService;
+    private readonly IAuthService _authService;
     private readonly INavigationService _navigationService;
     private bool _isProcessing = false;
 
     public ScannerService(
         IMessenger messenger,
         IApiService apiService,
+        IAuthService authService,
         INavigationService navigationService)
     {
         _messenger = messenger;
         _apiService = apiService;
         _navigationService = navigationService;
+        _authService = authService;
     }
 
     public void Initialize()
@@ -42,6 +45,13 @@ public class ScannerService : IScannerService, IRecipient<BarcodeScannedMessage>
 
         try
         {
+            var sessionValid = await _authService.ValidateSessionAsync();
+            if (!sessionValid) {
+                AppLogger.Warning("ScannerService - invalid session, skipping barcode processing");
+                _messenger.Send(new SessionExpiredMessage());
+                return;
+            }
+
             _ = _apiService.SaveBarcodeAsync(new BarcodeRequest(message.Value, message.Format));
 
             var scanResult = new ScanResult(message.Value, message.Format, DateTime.Now);
